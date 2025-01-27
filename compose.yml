@@ -1,0 +1,45 @@
+version: "3.9"  # Utilisez la dernière version supportée
+
+services:
+  wordpress_db:
+    image: mysql:8.0
+    container_name: wordpress_db
+    restart: always
+    ports:
+      - "3306:3306"  # Mappez le port 3306 de l'hôte au port 3306 du conteneur
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql 
+    networks:
+      - backend
+
+  wordpress:
+    depends_on:
+      - wordpress_db 
+    image: wordpress:latest
+    container_name: wordpress
+    restart: always
+    ports:
+      - "8080:80"  # Exposez le port 80 du conteneur sur le port 8080 de l'hôte
+    environment:
+      WORDPRESS_DB_HOST: wordpress_db 
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - backend
+      - frontend
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  db_data:
+  wp_data:
